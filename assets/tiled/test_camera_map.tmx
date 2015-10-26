@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="160" height="14" tilewidth="16" tileheight="16" nextobjectid="1">
+ <tileset firstgid="1" name="zelda_16x16" tilewidth="16" tileheight="16" tilecount="400">
+  <image source="../zelda_16x16.png" width="320" height="320"/>
+ </tileset>
+ <layer name="blockedLayer" width="160" height="14" opacity="0.9">
+  <data encoding="base64" compression="zlib">
+   eJzt0rEJACAMRcEY99/ZxgmMEoQ7eFWaXyQCAAAAAAAA6DZ3L25Zm8ZHxkEpXcr/qbMFwcICgQ==
+  </data>
+ </layer>
+</map>

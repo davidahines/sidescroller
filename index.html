@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>TEST  phaser!</title>
+        <script src="phaser.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+        var game = new Phaser.Game(256, 224, Phaser.CANVAS, 'game_div', { preload: preload, create: create, update: update, render: render});
+		var cursors;
+		var map;
+		var backgroundLayer;
+		var blockedLayer;
+		var foregroundLayer;
+		var skyLayer;
+		var player;
+		var jumpedLeft;
+
+		var STANDARD_SPEED = 150;
+		var STANDARD_GRAVITY = 300;
+		var STANDARD_BOUNCE = 0.0;
+		var VELOCITY_STOPPED = 0;
+		
+		
+        function preload () {
+			cursors = game.input.keyboard.createCursorKeys();
+			game.time.advancedTiming = true;
+			loadAssets();
+
+        }
+		
+		function loadAssets(){
+			game.load.spritesheet('link', 'assets/link.png', 39, 32);
+	
+			game.load.image('zelda_16x16', 'assets/zelda_16x16.png');
+			//game.load.tilemap('parapa_palace', 'assets/tiled/parapa_palace.json', null, Phaser.Tilemap.TILED_JSON);
+			game.load.tilemap('parapa_palace', 'assets/tiled/test_camera_map.json', null, Phaser.Tilemap.TILED_JSON);
+		};
+		
+		function render(){
+			game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");   
+			
+		}
+
+		
+		
+        function create () {
+
+			createLayers();
+			
+			createPlayer();
+			
+			createCamera();
+        }
+		
+		function createCamera(){
+			game.camera.follow(player);
+		}
+		
+		function createLayers(){
+			map = game.add.tilemap('parapa_palace');
+			//the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+			map.addTilesetImage('zelda_16x16', 'zelda_16x16');
+			//create layer
+			skyLayer = map.createLayer('skyLayer');
+			backgroundLayer = map.createLayer('backgroundLayer');
+			blockedLayer = map.createLayer('blockedLayer');
+			//foregroundLayer = map.createLayer('foregroundLayer');
+			
+			//collision on blockedLayer
+			map.setCollisionBetween(1, 100, true, 'blockedLayer');
+			
+			
+		
+			//  Resize the world
+			backgroundLayer.resizeWorld();
+			
+			
+			
+            //  We're going to be using physics, so enable the Arcade Physics system
+			game.physics.startSystem(Phaser.Physics.ARCADE);
+
+		
+		};
+		
+		function createPlayer(){
+					// The player and its settings
+			player = game.add.sprite(16, 32, 'link');
+			
+			
+
+			//  We need to enable physics on the player
+			game.physics.arcade.enable(player);
+			
+
+			//  Player physics properties. Give the little guy a slight bounce.
+			player.body.bounce.y = STANDARD_BOUNCE;
+			player.body.gravity.y = STANDARD_GRAVITY*2;
+			player.body.collideWorldBounds = true;
+			player.body.setSize(24,32,8,0);
+
+			//  Our two animations, walking left and right.
+			player.animations.add('left', [0, 1, 2, 3], 10, true);
+			player.animations.add('right', [4, 5, 6, 7], 10, true);
+			player.animations.add('jump_left', [9,9,3],10, false);
+			player.animations.add('jump_right', [14,14,4], 10, false);
+			player.animations.add('attack_left', [10,10,11], 10, false);
+			player.animations.add('attack_right', [12,12,13], 10, false);
+			player.animations.add('crouch_attack_left', [8,8,9], 10, false);
+			player.animations.add('crouch_attack_right', [14,14,15], 10, false);
+			player.animations.add('crouch_left', [9], 10, false);
+			player.animations.add('crouch_right', [14], 10, false);
+			
+			
+			
+		};
+		
+		function update() {
+			game.physics.arcade.collide(player, blockedLayer);
+			var isAirborne = !player.body.blocked.down;
+		
+			
+			
+			//  Collide the player and the stars with the platforms
+			
+	
+			
+			if (cursors.up.isDown && !isAirborne)
+			{
+				
+				player.animations.stop();
+				if(cursors.left.isDown){
+					player.animations.play('jump_left');
+					player.body.velocity.x = -STANDARD_SPEED;
+					jumpedLeft = true;
+				}
+				if(cursors.right.isDown){
+					player.animations.play('jump_right');
+					player.body.velocity.x = STANDARD_SPEED;
+					jumpedLeft = false;
+				}
+				player.body.velocity.y = -STANDARD_SPEED;
+				
+				
+			}
+			else if (cursors.left.isDown )
+			{
+				//  Move to the left
+				if(!isAirborne){
+					player.body.velocity.x = -STANDARD_SPEED;
+					player.animations.play('left');
+				}
+
+			}
+			else if (cursors.right.isDown)
+			{
+				//  Move to the right
+				if(!isAirborne){
+					player.body.velocity.x = STANDARD_SPEED;
+					player.animations.play('right');
+				}
+			}
+			else
+			{
+				if(!isAirborne){
+				var frameToSet = 4;
+				if(player.animations.currentAnim.name == 'left'){
+					frameToSet = 3;
+				}
+				player.animations.stop();
+				//  Stand still
+				
+				//  Reset the players velocity (movement)
+				
+					player.body.velocity.x = VELOCITY_STOPPED;
+				}
+				
+
+				player.frame = frameToSet;
+			}
+    
+			//  Allow the player to jump if they are touching the ground.
+			
+			
+			
+		}
+    };
+
+    </script>
+	
+	<h1>
+		Game Test Page
+		<h1>
+	<div id='game_div'>
+		
+	</div>
+    </body>
+</html>
